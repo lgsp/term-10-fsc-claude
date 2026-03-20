@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fonctions Sinus et Cosinus — Terminale Spécialité</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Instrument+Serif:ital@0;1&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+<style>
+:root {
+  --bg:      #04060f;
+  --bg2:     #070b18;
+  --bg3:     #0c1222;
+  --card:    #0a101e;
+  --card2:   #101828;
+  --cyan:    #00e5ff;
+  --cyan2:   #00b4cc;
+  --cyan3:   #001c24;
+  --mag:     #ff2d78;
+  --mag2:    #ff6fa0;
+  --mag3:    #2a0018;
+  --gold:    #ffd040;
+  --gold2:   #1e1600;
+  --teal:    #00c8a0;
+  --teal2:   #002820;
+  --violet:  #a060ff;
+  --violet2: #14063a;
+  --border:  #0e1e30;
+  --ink:     #e0ecff;
+  --ink2:    #7898b8;
+  --ink3:    #3a4a60;
+  --sh:      0 2px 16px rgba(0,229,255,0.06);
+  --sh2:     0 6px 40px rgba(0,229,255,0.10);
+  --r: 8px;
+  --font-h: 'Unbounded', sans-serif;
+  --font-b: 'Instrument Serif', Georgia, serif;
+  --font-m: 'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-b); font-size: 16px; line-height: 1.74; }
+
+/* ── HEADER ── */
+header {
+  background: var(--bg2);
+  padding: 4rem 2rem 3.4rem;
+  text-align: center; position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,229,255,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,45,120,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+/* Sine wave decoration */
+header canvas#header-wave {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  width: 100%; height: 60px; opacity: 0.25;
+}
+.badge {
+  display: inline-block;
+  font-family: var(--font-m); font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--cyan);
+  border: 1px solid rgba(0,229,255,0.2); border-radius: 20px;
+  padding: 0.28em 1.1em; margin-bottom: 1.3rem;
+  background: rgba(0,229,255,0.05);
+}
+h1 {
+  font-family: var(--font-h);
+  font-size: clamp(1.6rem, 4.5vw, 3rem);
+  font-weight: 900; line-height: 1.08;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+h1 .sin { color: var(--cyan); }
+h1 .cos { color: var(--mag2); }
+h1 .amp { color: var(--gold); }
+.subtitle { font-style: italic; font-size: 1rem; color: var(--ink3); margin-top: 0.8rem; }
+.official-link {
+  display: inline-flex; align-items: center; gap: 0.45em;
+  margin-top: 1.2rem; font-family: var(--font-m); font-size: 0.7rem;
+  color: var(--teal); text-decoration: none;
+  border-bottom: 1px dashed rgba(0,200,160,0.35); padding-bottom: 1px; transition: color 0.2s;
+}
+.official-link:hover { color: #80ffe0; }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(4,6,15,0.97); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+.nav-inner { display: flex; padding: 0 1rem; min-width: max-content; }
+nav a {
+  display: flex; align-items: center; gap: 0.38em;
+  padding: 0.7rem 0.9rem;
+  font-family: var(--font-m); font-size: 0.61rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink3); text-decoration: none;
+  border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s;
+}
+nav a:hover, nav a.active { color: var(--cyan); border-color: var(--cyan); }
+.nav-num { font-size: 0.5rem; opacity: 0.35; }
+
+/* ── MAIN ── */
+main { max-width: 940px; margin: 0 auto; padding: 0 1.5rem 7rem; }
+section { padding-top: 5rem; opacity: 0; transform: translateY(16px); transition: opacity 0.5s, transform 0.5s; }
+section.visible { opacity: 1; transform: none; }
+
+.sec-hd {
+  display: flex; align-items: baseline; gap: 1.1rem;
+  margin-bottom: 2rem; padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.sec-hd::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 55px; height: 2px; background: linear-gradient(90deg, var(--cyan), transparent); }
+.sec-num { font-family: var(--font-m); font-size: 0.56rem; color: var(--cyan); letter-spacing: 0.12em; flex-shrink: 0; }
+h2 { font-family: var(--font-h); font-size: clamp(1.2rem, 2.8vw, 1.7rem); font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+h3 { font-family: var(--font-h); font-size: 1rem; font-weight: 600; color: var(--cyan); margin: 2rem 0 0.65rem; letter-spacing: 0.01em; }
+p { margin-bottom: 0.9rem; color: var(--ink2); font-style: italic; }
+li { margin-bottom: 0.3rem; color: var(--ink2); font-style: italic; }
+
+/* ── BLOCKS ── */
+.block {
+  border-left: 3px solid; border-radius: 0 var(--r) var(--r) 0;
+  padding: 1.1rem 1.4rem; margin: 1.1rem 0; position: relative;
+}
+.block::before {
+  content: attr(data-label);
+  position: absolute; top: -0.6rem; left: 1rem;
+  font-family: var(--font-m); font-size: 0.51rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.17em 0.58em; border-radius: 2px;
+}
+.block.def  { border-color: var(--cyan);   background: var(--cyan3); }
+.block.def::before  { background: var(--cyan);   color: var(--bg); }
+.block.thm  { border-color: var(--teal);   background: var(--teal2); }
+.block.thm::before  { background: var(--teal);   color: var(--bg); }
+.block.demo { border-color: var(--violet); background: var(--violet2); }
+.block.demo::before { background: var(--violet); color: #fff; }
+.block.cap  { border-color: var(--gold);   background: var(--gold2); }
+.block.cap::before  { background: var(--gold);   color: var(--bg); }
+.block.warn { border-color: var(--mag);    background: var(--mag3); }
+.block.warn::before { background: var(--mag); color: #fff; }
+
+details { margin: 0.8rem 0; }
+summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-m); font-size: 0.72rem; font-weight: 700;
+  color: var(--violet); padding: 0.44rem 0; user-select: none; transition: color 0.2s;
+  letter-spacing: 0.04em;
+}
+summary:hover { color: var(--cyan); }
+summary::before { content: '▶'; font-size: 0.52rem; transition: transform 0.2s; }
+details[open] summary::before { transform: rotate(90deg); }
+.proof-body { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 1rem 1.4rem; margin-top: 0.4rem; font-size: 0.9rem; color: var(--ink2); }
+
+/* ── TABLES ── */
+.tbl-w { overflow-x: auto; margin: 1rem 0; border-radius: var(--r); border: 1px solid var(--border); box-shadow: var(--sh); }
+table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+thead tr { background: var(--bg3); }
+th { padding: 0.65rem 0.9rem; font-family: var(--font-m); font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); font-weight: 700; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); color: var(--ink2); font-style: italic; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+/* ── CANVAS SECTIONS ── */
+.canvas-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--sh2); }
+.canvas-bar {
+  background: var(--bg3); padding: 0.5rem 1rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-m); font-size: 0.56rem; color: var(--ink3); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.canvas-bar label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.62rem; color: var(--ink2); }
+.canvas-bar input, .canvas-bar select {
+  font-family: var(--font-m); font-size: 0.67rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 3px; padding: 0.15rem 0.35rem; color: var(--ink);
+}
+.canvas-bar input[type=number] { width: 58px; }
+.canvas-bar input[type=range]  { width: 100px; accent-color: var(--cyan); }
+canvas.viz { display: block; width: 100%; cursor: crosshair; }
+
+/* ── CALC ── */
+.calc { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 1.3rem 1.5rem; margin: 1.2rem 0; box-shadow: var(--sh); }
+.calc-title { font-family: var(--font-m); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5em; }
+.calc-title::before { content: '◈'; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center; margin-bottom: 0.8rem; }
+.controls label { font-size: 0.82rem; color: var(--ink2); display: flex; align-items: center; gap: 0.35rem; font-family: var(--font-m); }
+.controls input, .controls select { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; color: var(--ink); padding: 0.27rem 0.44rem; font-family: var(--font-m); font-size: 0.82rem; transition: border-color 0.15s; }
+.controls input[type=number] { width: 72px; }
+.controls select { width: auto; }
+.controls input:focus, .controls select:focus { outline: none; border-color: var(--cyan); }
+.result-box { background: var(--bg2); border-radius: 6px; padding: 0.75rem 1rem; font-family: var(--font-m); font-size: 0.84rem; color: var(--cyan); border: 1px solid var(--border); margin-top: 0.5rem; min-height: 2.4rem; line-height: 1.6; }
+
+/* ── PYTHON ── */
+.py-block { background: #020408; border: 1px solid #0a1020; border-radius: var(--r); margin: 1.2rem 0; overflow: hidden; box-shadow: var(--sh2); }
+.py-hd { background: #010306; display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1rem; border-bottom: 1px solid #0a1020; flex-wrap: wrap; gap: 0.4rem; }
+.py-dots { display: flex; gap: 5px; }
+.py-dot { width: 9px; height: 9px; border-radius: 50%; }
+.py-dot.r{background:#ff5f57;}.py-dot.y{background:#febc2e;}.py-dot.g{background:#28c840;}
+.py-meta { display: flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem; }
+.py-title { font-family: var(--font-m); font-size: 0.7rem; color: #1a2840; }
+.py-badge { font-family: var(--font-m); font-size: 0.55rem; color: #101830; border: 1px solid #0a1020; border-radius: 2px; padding: 0.12em 0.45em; text-transform: uppercase; letter-spacing: 0.07em; }
+.py-acts { display: flex; gap: 0.35rem; }
+.btn-run { background: rgba(40,200,64,0.12); color: #28c840; border: 1px solid rgba(40,200,64,0.28); border-radius: 4px; padding: 0.26rem 0.62rem; font-family: var(--font-m); font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-run:hover { background: rgba(40,200,64,0.24); }
+.btn-dl  { background: rgba(0,229,255,0.08); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); border-radius: 4px; padding: 0.26rem 0.62rem; font-family: var(--font-m); font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-dl:hover  { background: rgba(0,229,255,0.18); }
+.btn-rst { background: rgba(255,45,120,0.1); color: var(--mag); border: 1px solid rgba(255,45,120,0.25); border-radius: 4px; padding: 0.26rem 0.62rem; font-family: var(--font-m); font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-rst:hover { background: rgba(255,45,120,0.22); }
+textarea.py-code { display: block; width: 100%; background: transparent; border: none; outline: none; color: #cdd6f4; font-family: var(--font-m); font-size: 0.8rem; line-height: 1.65; padding: 1rem 1.2rem; resize: vertical; min-height: 175px; tab-size: 4; white-space: pre; overflow-x: auto; }
+.py-out { border-top: 1px solid #0a1020; padding: 0.75rem 1.2rem; font-family: var(--font-m); font-size: 0.78rem; color: #a6e3a1; min-height: 2.3rem; white-space: pre-wrap; display: none; }
+.py-out.active { display: block; }
+.py-out.error  { color: #f38ba8; }
+
+/* ── QCM ── */
+.qcm-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.4rem; }
+.chrono { display: flex; align-items: center; gap: 0.65rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 0.44rem 0.9rem; box-shadow: var(--sh); }
+.chrono-d { font-family: var(--font-m); font-size: 1rem; font-weight: 700; color: var(--cyan); min-width: 4ch; }
+.score-v { font-family: var(--font-m); font-weight: 700; color: var(--teal); }
+.qcm-q { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 1.3rem 1.5rem; margin-bottom: 1.1rem; box-shadow: var(--sh); transition: border-color 0.3s; }
+.qcm-q.correct { border-color: var(--teal); background: var(--teal2); }
+.qcm-q.wrong   { border-color: var(--mag);  background: var(--mag3); }
+.qcm-question  { font-family: var(--font-h); font-size: 0.95rem; font-weight: 600; color: var(--ink); margin-bottom: 0.9rem; }
+.qcm-opts { display: flex; flex-direction: column; gap: 0.44rem; }
+.qcm-opt { cursor: pointer; display: flex; align-items: center; gap: 0.65rem; padding: 0.54rem 0.85rem; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg2); font-size: 0.87rem; color: var(--ink2); font-style: italic; transition: all 0.12s; }
+.qcm-opt:hover:not(.disabled) { background: var(--cyan3); border-color: var(--cyan); color: var(--cyan); }
+.qcm-opt.selected { background: var(--cyan3); border-color: var(--cyan2); color: var(--cyan); }
+.qcm-opt.correct  { background: var(--teal2); border-color: var(--teal); color: var(--teal); }
+.qcm-opt.wrong    { background: var(--mag3);  border-color: var(--mag);  color: var(--mag2); }
+.qcm-opt.disabled { pointer-events: none; }
+.opt-l { font-family: var(--font-m); font-size: 0.65rem; font-weight: 700; width: 1.5em; height: 1.5em; display: flex; align-items: center; justify-content: center; background: var(--border); border-radius: 3px; flex-shrink: 0; }
+.qcm-fb { margin-top: 0.65rem; font-size: 0.82rem; color: var(--ink2); padding: 0.5rem 0.75rem; border-radius: var(--r); background: var(--bg3); display: none; font-style: italic; }
+.qcm-fb.active { display: block; }
+.qcm-acts { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.4rem; }
+.btn-p { cursor: pointer; background: var(--cyan); color: var(--bg); border: none; border-radius: var(--r); padding: 0.6rem 1.4rem; font-family: var(--font-m); font-size: 0.77rem; font-weight: 700; letter-spacing: 0.06em; transition: background 0.15s, transform 0.1s; }
+.btn-p:hover { background: var(--cyan2); transform: translateY(-1px); }
+.btn-s { cursor: pointer; background: var(--card); color: var(--ink2); border: 1px solid var(--border); border-radius: var(--r); padding: 0.6rem 1.2rem; font-family: var(--font-m); font-size: 0.77rem; transition: background 0.15s; }
+.btn-s:hover { background: var(--bg3); }
+.qcm-res { background: var(--cyan3); border: 1px solid var(--cyan); border-radius: var(--r); padding: 1.5rem; text-align: center; display: none; margin-top: 1.4rem; }
+.qcm-res.active { display: block; }
+.res-sc  { font-family: var(--font-h); font-size: 2.5rem; font-weight: 900; color: var(--cyan); }
+.res-msg { color: var(--ink2); margin-top: 0.5rem; font-family: var(--font-m); font-size: 0.78rem; }
+
+/* ── CONTACT ── */
+.cg { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 1rem; margin-top: 1.4rem; }
+.cc { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 1.3rem; text-align: center; text-decoration: none; display: block; box-shadow: var(--sh); transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.cc:hover { border-color: var(--cyan); transform: translateY(-2px); box-shadow: var(--sh2); }
+.cc img { width: 100px; height: 100px; border-radius: 6px; margin-bottom: 0.75rem; }
+.cc-t { font-family: var(--font-h); font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 0.25rem; letter-spacing: 0.02em; }
+.cc-s { font-size: 0.76rem; color: var(--ink3); font-style: italic; }
+.cc-l { font-size: 0.72rem; font-family: var(--font-m); color: var(--cyan); margin-top: 0.4rem; display: block; }
+
+#py-status { position: fixed; bottom: 1.2rem; right: 1.2rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 0.42rem 0.85rem; font-family: var(--font-m); font-size: 0.67rem; color: var(--ink3); z-index: 200; box-shadow: var(--sh); transition: opacity 0.5s; }
+#py-status.ready  { color: var(--teal); }
+#py-status.hidden { opacity: 0; pointer-events: none; }
+.hl   { color: var(--cyan);  font-weight: 600; font-style: normal; }
+.hl-m { color: var(--mag2);  font-weight: 600; font-style: normal; }
+.hl-g { color: var(--gold);  font-weight: 600; font-style: normal; }
+</style>
+</head>
+<body>
+
+<div id="py-status">⏳ Python — en attente</div>
+
+<header>
+  <canvas id="header-wave"></canvas>
+  <div class="badge">Terminale · Spécialité Mathématiques · Analyse</div>
+  <h1><span class="sin">sin</span> &amp; <span class="cos">cos</span><br><span class="amp" style="font-size:0.55em;letter-spacing:0.05em;">Fonctions trigonométriques</span></h1>
+  <p class="subtitle">Cercle trigonométrique · Propriétés · Dérivées · Équations · Fonctions composées</p>
+  <a class="official-link"
+     href="https://eduscol.education.gouv.fr/sites/default/files/document/spe246annexe1158907pdf-84159.pdf"
+     target="_blank" rel="noopener">📄 Programme officiel Éduscol — Spécialité Terminale ↗</a>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#programme"><span class="nav-num">01</span> Programme</a>
+    <a href="#cercle"><span class="nav-num">02</span> Cercle trigo</a>
+    <a href="#proprietes"><span class="nav-num">03</span> Propriétés</a>
+    <a href="#formules"><span class="nav-num">04</span> Formules</a>
+    <a href="#derivees"><span class="nav-num">05</span> Dérivées</a>
+    <a href="#equations"><span class="nav-num">06</span> Équations</a>
+    <a href="#composees"><span class="nav-num">07</span> Composées</a>
+    <a href="#demo"><span class="nav-num">08</span> Démos</a>
+    <a href="#python"><span class="nav-num">09</span> Python</a>
+    <a href="#qcm"><span class="nav-num">10</span> QCM</a>
+    <a href="#contact"><span class="nav-num">11</span> Contact</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ══════════ 01 PROGRAMME ══════════ -->
+<section id="programme">
+  <div class="sec-hd"><span class="sec-num">01</span><h2>Programme &amp; capacités attendues</h2></div>
+
+  <div class="block cap" data-label="Contenus — programme officiel">
+    <p>• Enroulement de la droite réelle sur le cercle trigonométrique ; définition de \(\cos\theta\) et \(\sin\theta\).</p>
+    <p>• Valeurs exactes pour \(0, \pi/6, \pi/4, \pi/3, \pi/2\) et les angles associés.</p>
+    <p>• Parité, périodicité, symétries de \(\sin\) et \(\cos\).</p>
+    <p>• Formules d'addition : \(\cos(a+b)\), \(\sin(a+b)\), \(\cos(2a)\), \(\sin(2a)\).</p>
+    <p>• Dérivées : \((\sin x)'=\cos x\), \((\cos x)'=-\sin x\), \((\sin u)'=u'\cos u\), \((\cos u)'=-u'\sin u\).</p>
+    <p style="margin:0">• Résolution de \(\cos\theta=a\) et \(\sin\theta=a\). Fonctions \(A\cos(\omega t+\varphi)\).</p>
+  </div>
+
+  <div class="block cap" data-label="Capacités attendues">
+    <p>✦ Utiliser le cercle trigonométrique pour retrouver les valeurs exactes.</p>
+    <p>✦ Exploiter les symétries et la périodicité de sin et cos.</p>
+    <p>✦ Calculer avec les formules d'addition et de duplication.</p>
+    <p>✦ Dériver des fonctions composées impliquant sin ou cos.</p>
+    <p style="margin:0">✦ Résoudre les équations \(\cos x = a\) et \(\sin x = a\) et décrire les solutions.</p>
+  </div>
+</section>
+
+<!-- ══════════ 02 CERCLE TRIGONOMÉTRIQUE ══════════ -->
+<section id="cercle">
+  <div class="sec-hd"><span class="sec-num">02</span><h2>Cercle trigonométrique</h2></div>
+
+  <div class="block def" data-label="Définition — enroulement">
+    On enroule la droite réelle sur le cercle de centre \(O\) et de rayon 1. Le point d'enroulement de l'abscisse \(\theta\) est le point \(M(\cos\theta\,;\,\sin\theta)\) du cercle :<br><br>
+    \[\cos^2\theta + \sin^2\theta = 1\quad\forall\theta\in\mathbb{R}\]
+    C'est l'<strong>identité trigonométrique fondamentale</strong>.
+  </div>
+
+  <!-- Cercle trigonométrique ANIMÉ -->
+  <div class="canvas-wrap">
+    <div class="canvas-bar">
+      <span>🔵 Cercle trigonométrique interactif — glisser pour déplacer le point</span>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">
+        <label>θ (rad) = <input type="number" id="circ-theta" value="0.5236" step="0.0524" oninput="updateCircle()"></label>
+        <label>Animer <input type="checkbox" id="circ-anim" onchange="toggleCircAnim()"></label>
+        <span id="circ-vals" style="font-family:var(--font-m);font-size:0.65rem;color:var(--cyan)"></span>
+      </div>
+    </div>
+    <canvas class="viz" id="canvas-circ" style="height:380px;"></canvas>
+  </div>
+
+  <h3>Valeurs exactes fondamentales</h3>
+  <div class="tbl-w">
+    <table>
+      <thead><tr><th>Angle \(\theta\)</th><th>\(0\)</th><th>\(\pi/6\)</th><th>\(\pi/4\)</th><th>\(\pi/3\)</th><th>\(\pi/2\)</th><th>\(\pi\)</th><th>\(3\pi/2\)</th><th>\(2\pi\)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--cyan)">cos θ</td>
+          <td>\(1\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(\frac{1}{2}\)</td><td>\(0\)</td><td>\(-1\)</td><td>\(0\)</td><td>\(1\)</td>
+        </tr>
+        <tr>
+          <td style="color:var(--mag2)">sin θ</td>
+          <td>\(0\)</td><td>\(\frac{1}{2}\)</td><td>\(\frac{\sqrt{2}}{2}\)</td><td>\(\frac{\sqrt{3}}{2}\)</td><td>\(1\)</td><td>\(0\)</td><td>\(-1\)</td><td>\(0\)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Calculateur de valeurs</h3>
+  <div class="calc">
+    <div class="calc-title">Valeurs exactes et décimales de sin et cos</div>
+    <div class="controls">
+      <label>Angle :
+        <select id="ang-val" onchange="calcAngle()">
+          <option value="0">0</option>
+          <option value="pi6">π/6</option>
+          <option value="pi4">π/4</option>
+          <option value="pi3">π/3</option>
+          <option value="pi2">π/2</option>
+          <option value="2pi3">2π/3</option>
+          <option value="3pi4">3π/4</option>
+          <option value="5pi6">5π/6</option>
+          <option value="pi">π</option>
+          <option value="7pi6">7π/6</option>
+          <option value="5pi4">5π/4</option>
+          <option value="4pi3">4π/3</option>
+          <option value="3pi2">3π/2</option>
+          <option value="5pi3">5π/3</option>
+          <option value="7pi4">7π/4</option>
+          <option value="11pi6">11π/6</option>
+          <option value="2pi">2π</option>
+        </select>
+      </label>
+    </div>
+    <div class="result-box" id="ang-res"></div>
+  </div>
+</section>
+
+<!-- ══════════ 03 PROPRIÉTÉS ══════════ -->
+<section id="proprietes">
+  <div class="sec-hd"><span class="sec-num">03</span><h2>Propriétés de sin et cos</h2></div>
+
+  <h3>Périodicité</h3>
+  <div class="block thm" data-label="Théorème">
+    \(\cos\) et \(\sin\) sont <strong>périodiques de période \(2\pi\)</strong> :<br>
+    \[\forall\theta\in\mathbb{R},\quad\cos(\theta+2\pi)=\cos\theta,\quad\sin(\theta+2\pi)=\sin\theta\]
+  </div>
+
+  <h3>Parité</h3>
+  <div class="block thm" data-label="Théorème">
+    <p>• \(\cos\) est <strong>paire</strong> : \(\cos(-\theta)=\cos\theta\)</p>
+    <p style="margin:0">• \(\sin\) est <strong>impaire</strong> : \(\sin(-\theta)=-\sin\theta\)</p>
+  </div>
+
+  <h3>Symétries — angles remarquables</h3>
+  <div class="block def" data-label="Relations de symétrie">
+    <p>• \(\cos(\pi-\theta)=-\cos\theta\) ; \(\sin(\pi-\theta)=\sin\theta\)</p>
+    <p>• \(\cos(\pi+\theta)=-\cos\theta\) ; \(\sin(\pi+\theta)=-\sin\theta\)</p>
+    <p>• \(\cos\!\left(\frac{\pi}{2}-\theta\right)=\sin\theta\) ; \(\sin\!\left(\frac{\pi}{2}-\theta\right)=\cos\theta\) <em>(complémentarité)</em></p>
+    <p style="margin:0">• \(\cos\!\left(\frac{\pi}{2}+\theta\right)=-\sin\theta\) ; \(\sin\!\left(\frac{\pi}{2}+\theta\right)=\cos\theta\)</p>
+  </div>
+
+  <h3>Visualiseur sin &amp; cos — propriétés</h3>
+  <div class="canvas-wrap">
+    <div class="canvas-bar">
+      <span>Courbes de sin et cos</span>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">
+        <label>sin <input type="checkbox" id="show-sin" checked onchange="drawWaves()"></label>
+        <label>cos <input type="checkbox" id="show-cos" checked onchange="drawWaves()"></label>
+        <label>Périodes = <input type="number" id="wave-per" value="2" min="1" max="4" step="0.5" oninput="drawWaves()"></label>
+      </div>
+    </div>
+    <canvas class="viz" id="canvas-waves" style="height:260px;"></canvas>
+  </div>
+
+  <h3>Tableau de variation sur \([0;2\pi]\)</h3>
+  <div class="tbl-w">
+    <table>
+      <thead><tr><th>\(\theta\)</th><th>\(0\)</th><th>\(\pi/2\)</th><th>\(\pi\)</th><th>\(3\pi/2\)</th><th>\(2\pi\)</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--cyan)">cos θ</td><td>1</td><td>0</td><td>−1</td><td>0</td><td>1</td></tr>
+        <tr><td style="color:var(--cyan)">Variation cos</td><td colspan="2" style="text-align:center">↘ décroissant</td><td colspan="2" style="text-align:center">↗ croissant</td><td></td></tr>
+        <tr><td style="color:var(--mag2)">sin θ</td><td>0</td><td>1</td><td>0</td><td>−1</td><td>0</td></tr>
+        <tr><td style="color:var(--mag2)">Variation sin</td><td colspan="2" style="text-align:center">↗ croissant</td><td colspan="2" style="text-align:center">↘ décroissant</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ 04 FORMULES ══════════ -->
+<section id="formules">
+  <div class="sec-hd"><span class="sec-num">04</span><h2>Formules d'addition et de duplication</h2></div>
+
+  <div class="block thm" data-label="Formules d'addition">
+    \[\cos(a+b) = \cos a\cos b - \sin a\sin b\]
+    \[\cos(a-b) = \cos a\cos b + \sin a\sin b\]
+    \[\sin(a+b) = \sin a\cos b + \cos a\sin b\]
+    \[\sin(a-b) = \sin a\cos b - \cos a\sin b\]
+  </div>
+
+  <details>
+    <summary>Démonstration géométrique de cos(a+b) = cos a·cos b − sin a·sin b</summary>
+    <div class="proof-body">
+      Considérons les points \(M(\cos a;\sin a)\) et \(N(\cos(-b);\sin(-b))=(\cos b;-\sin b)\) sur le cercle unité.<br><br>
+      La distance \(MN^2\) vaut (par Pythagore) :<br>
+      \(MN^2=(\cos a-\cos b)^2+(\sin a+\sin b)^2=2-2(\cos a\cos b-\sin a\sin b)\)<br><br>
+      D'autre part, l'angle \(\widehat{MON}=a+b\), et par la loi des cosinus dans le triangle \(MON\) (avec \(OM=ON=1\)) :<br>
+      \(MN^2=1+1-2\cos(a+b)=2-2\cos(a+b)\)<br><br>
+      En égalisant : \(\cos(a+b)=\cos a\cos b-\sin a\sin b\). \(\blacksquare\)
+    </div>
+  </details>
+
+  <div class="block thm" data-label="Formules de duplication">
+    \[\cos(2a) = \cos^2 a - \sin^2 a = 2\cos^2 a - 1 = 1 - 2\sin^2 a\]
+    \[\sin(2a) = 2\sin a\cos a\]
+  </div>
+
+  <div class="block def" data-label="Formules de linéarisation">
+    \[\cos^2 a = \frac{1+\cos(2a)}{2}\]
+    \[\sin^2 a = \frac{1-\cos(2a)}{2}\]
+    \[\cos a\cos b = \frac{\cos(a-b)+\cos(a+b)}{2}\]
+    \[\sin a\sin b = \frac{\cos(a-b)-\cos(a+b)}{2}\]
+    \[\sin a\cos b = \frac{\sin(a+b)+\sin(a-b)}{2}\]
+  </div>
+
+  <h3>Calculateur de formules</h3>
+  <div class="calc">
+    <div class="calc-title">Vérifier les formules d'addition</div>
+    <div class="controls">
+      <label>\(a\) (rad) = <input type="number" id="fa-a" value="0.5236" step="0.0524" oninput="calcFormule()"></label>
+      <label>\(b\) (rad) = <input type="number" id="fa-b" value="0.7854" step="0.0524" oninput="calcFormule()"></label>
+    </div>
+    <div class="result-box" id="fa-res"></div>
+  </div>
+</section>
+
+<!-- ══════════ 05 DÉRIVÉES ══════════ -->
+<section id="derivees">
+  <div class="sec-hd"><span class="sec-num">05</span><h2>Dérivées de sin et cos</h2></div>
+
+  <div class="block thm" data-label="Formules fondamentales">
+    \[(\sin x)' = \cos x\]
+    \[(\cos x)' = -\sin x\]
+    \[(\sin u)' = u'\cos u\]
+    \[(\cos u)' = -u'\sin u\]
+  </div>
+
+  <details>
+    <summary>Démonstration — \((\sin x)' = \cos x\)</summary>
+    <div class="proof-body">
+      Par définition de la dérivée, avec la formule d'addition :<br><br>
+      \(\dfrac{\sin(x+h)-\sin x}{h}=\dfrac{\sin x\cos h+\cos x\sin h-\sin x}{h}\)<br><br>
+      \(=\sin x\cdot\dfrac{\cos h-1}{h}+\cos x\cdot\dfrac{\sin h}{h}\)<br><br>
+      Quand \(h\to 0\) : \(\dfrac{\sin h}{h}\to 1\) et \(\dfrac{\cos h-1}{h}\to 0\) (résultats classiques).<br><br>
+      Donc \((\sin x)'=\sin x\cdot 0+\cos x\cdot 1=\cos x\). \(\blacksquare\)
+    </div>
+  </details>
+
+  <h3>Exemples de dérivation</h3>
+  <div class="block def" data-label="Exemples">
+    <p>• \(f(x)=\sin(3x)\) : \(u=3x\), \(u'=3\) → \(f'(x)=3\cos(3x)\)</p>
+    <p>• \(f(x)=\cos(x^2)\) : \(u=x^2\), \(u'=2x\) → \(f'(x)=-2x\sin(x^2)\)</p>
+    <p>• \(f(x)=\sin^2 x=(\sin x)^2\) : règle de la chaîne → \(f'(x)=2\sin x\cos x=\sin(2x)\)</p>
+    <p>• \(f(x)=e^{\sin x}\) → \(f'(x)=\cos x\cdot e^{\sin x}\)</p>
+    <p style="margin:0">• \(f(x)=x\cos x\) : règle du produit → \(f'(x)=\cos x - x\sin x\)</p>
+  </div>
+
+  <div class="block def" data-label="Primitives">
+    \[\int\cos x\,\mathrm{d}x = \sin x + C\]
+    \[\int\sin x\,\mathrm{d}x = -\cos x + C\]
+  </div>
+
+  <h3>Calculateur de dérivée</h3>
+  <div class="calc">
+    <div class="calc-title">Dérivée de fonctions trigonométriques</div>
+    <div class="controls">
+      <label>Fonction :
+        <select id="der-func" onchange="calcDeriv()">
+          <option value="sin3x">sin(3x)</option>
+          <option value="cosx2">cos(x²)</option>
+          <option value="sin2x">sin²(x)</option>
+          <option value="esinx">e^(sin x)</option>
+          <option value="xcosxv">x·cos(x)</option>
+          <option value="sin2xcos3x">sin(2x)·cos(3x)</option>
+          <option value="lnsinx">ln(sin x)</option>
+          <option value="sqrtcosx">√(cos x)</option>
+        </select>
+      </label>
+      <label>en \(x\)=<input type="number" id="der-x" value="0.5236" step="0.0524" oninput="calcDeriv()"></label>
+    </div>
+    <div class="result-box" id="der-res"></div>
+  </div>
+</section>
+
+<!-- ══════════ 06 ÉQUATIONS ══════════ -->
+<section id="equations">
+  <div class="sec-hd"><span class="sec-num">06</span><h2>Résolution d'équations trigonométriques</h2></div>
+
+  <div class="block thm" data-label="Solutions de cos(x) = a">
+    Pour \(|a|\leq 1\), les solutions de \(\cos\theta=a\) sont :
+    \[\theta = \pm\arccos(a) + 2k\pi,\quad k\in\mathbb{Z}\]
+  </div>
+
+  <div class="block thm" data-label="Solutions de sin(x) = a">
+    Pour \(|a|\leq 1\), les solutions de \(\sin\theta=a\) sont :
+    \[\theta = \arcsin(a) + 2k\pi\quad\text{ou}\quad\theta = \pi-\arcsin(a)+2k\pi,\quad k\in\mathbb{Z}\]
+  </div>
+
+  <div class="block warn" data-label="Cas particuliers à retenir">
+    <p>• \(\cos\theta=1\) → \(\theta=2k\pi\)</p>
+    <p>• \(\cos\theta=-1\) → \(\theta=\pi+2k\pi=(2k+1)\pi\)</p>
+    <p>• \(\cos\theta=0\) → \(\theta=\frac{\pi}{2}+k\pi\)</p>
+    <p>• \(\sin\theta=0\) → \(\theta=k\pi\)</p>
+    <p>• \(\sin\theta=1\) → \(\theta=\frac{\pi}{2}+2k\pi\)</p>
+    <p style="margin:0">• \(\sin\theta=-1\) → \(\theta=-\frac{\pi}{2}+2k\pi=\frac{3\pi}{2}+2k\pi\)</p>
+  </div>
+
+  <h3>Visualiseur d'équations — solutions sur le cercle</h3>
+  <div class="canvas-wrap">
+    <div class="canvas-bar">
+      <span>Solutions de cos(θ) = a ou sin(θ) = a</span>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">
+        <label>Equation :
+          <select id="eq-type" onchange="drawEqGraph()">
+            <option value="cos">cos(θ) = a</option>
+            <option value="sin">sin(θ) = a</option>
+          </select>
+        </label>
+        <label>\(a\)= <input type="range" id="eq-a" value="0.5" min="-1" max="1" step="0.01" oninput="drawEqGraph(); document.getElementById('eq-a-val').textContent=parseFloat(this.value).toFixed(2)"></label>
+        <span id="eq-a-val" style="font-family:var(--font-m);font-size:0.7rem;color:var(--gold);">0.50</span>
+      </div>
+    </div>
+    <canvas class="viz" id="canvas-eq" style="height:340px;"></canvas>
+  </div>
+
+  <h3>Calculateur d'équations</h3>
+  <div class="calc">
+    <div class="calc-title">Solutions de l'équation sur \([0;2\pi]\)</div>
+    <div class="controls">
+      <label>Type :
+        <select id="eq-sel" onchange="calcEq()">
+          <option value="cos">cos(θ) = a</option>
+          <option value="sin">sin(θ) = a</option>
+        </select>
+      </label>
+      <label>\(a\) = <input type="number" id="eq-aval" value="0.5" step="0.01" min="-1" max="1" oninput="calcEq()"></label>
+    </div>
+    <div class="result-box" id="eq-res"></div>
+  </div>
+</section>
+
+<!-- ══════════ 07 FONCTIONS COMPOSÉES ══════════ -->
+<section id="composees">
+  <div class="sec-hd"><span class="sec-num">07</span><h2>Fonctions \(A\cos(\omega t+\varphi)\) — signaux</h2></div>
+
+  <div class="block def" data-label="Forme canonique">
+    La fonction \(f(t)=A\cos(\omega t+\varphi)\) représente un <strong>signal sinusoïdal</strong> où :
+    <ul style="margin:0.5rem 0 0 1.3rem">
+      <li>\(A>0\) : <strong>amplitude</strong> (max/min de \(f\))</li>
+      <li>\(\omega>0\) : <strong>pulsation</strong> (rad/s ou rad/unité)</li>
+      <li>\(T=\dfrac{2\pi}{\omega}\) : <strong>période</strong></li>
+      <li>\(\varphi\in\mathbb{R}\) : <strong>phase à l'origine</strong></li>
+    </ul>
+  </div>
+
+  <div class="block thm" data-label="Propriétés">
+    <p>• \(f\) est périodique de période \(T=2\pi/\omega\)</p>
+    <p>• \(-A\leq f(t)\leq A\) (amplitude bornée)</p>
+    <p style="margin:0">• \(f'(t)=-A\omega\sin(\omega t+\varphi)\) (dérivée = signal de même pulsation, déphasé de \(\pi/2\))</p>
+  </div>
+
+  <h3>Visualiseur de signal \(A\cos(\omega t+\varphi)\)</h3>
+  <div class="canvas-wrap">
+    <div class="canvas-bar">
+      <span>Signal sinusoïdal interactif</span>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">
+        <label>\(A\)= <input type="range" id="sig-A" value="1" min="0.1" max="3" step="0.1" oninput="drawSignal()"> <span id="sig-A-v">1.0</span></label>
+        <label>\(\omega\)= <input type="range" id="sig-w" value="1" min="0.2" max="4" step="0.1" oninput="drawSignal()"> <span id="sig-w-v">1.0</span></label>
+        <label>\(\varphi\)= <input type="range" id="sig-phi" value="0" min="-3.14" max="3.14" step="0.05" oninput="drawSignal()"> <span id="sig-phi-v">0.00</span></label>
+        <label>f′ <input type="checkbox" id="sig-deriv" onchange="drawSignal()"></label>
+      </div>
+    </div>
+    <canvas class="viz" id="canvas-signal" style="height:260px;"></canvas>
+  </div>
+</section>
+
+<!-- ══════════ 08 DÉMONSTRATIONS ══════════ -->
+<section id="demo">
+  <div class="sec-hd"><span class="sec-num">08</span><h2>Démonstrations exemplaires du programme</h2></div>
+
+  <h3>Démo 1 — \(\cos^2\theta+\sin^2\theta=1\)</h3>
+  <div class="block demo" data-label="Démonstration">
+    Par définition, \(M(\cos\theta;\sin\theta)\) est le point du cercle unité de centre \(O\) associé à l'angle \(\theta\). Comme \(M\) est sur ce cercle de rayon 1 :
+    \[OM^2=\cos^2\theta+\sin^2\theta=1^2=1\quad\blacksquare\]
+  </div>
+
+  <h3>Démo 2 — \((\sin x)'=\cos x\) (voir section 05)</h3>
+  <div class="block demo" data-label="Rappel">
+    Utilise \(\frac{\sin h}{h}\to 1\) et \(\frac{\cos h-1}{h}\to 0\) quand \(h\to 0\), et la formule d'addition de \(\sin\).
+  </div>
+
+  <h3>Démo 3 — \((\cos x)'=-\sin x\)</h3>
+  <div class="block demo" data-label="Démonstration">
+    <strong>Méthode 1 (formule d'addition) :</strong> Même calcul que pour \((\sin x)'\) avec \(\cos(x+h)=\cos x\cos h-\sin x\sin h\) :<br><br>
+    \(\dfrac{\cos(x+h)-\cos x}{h}=\cos x\cdot\dfrac{\cos h-1}{h}-\sin x\cdot\dfrac{\sin h}{h}\to\cos x\cdot 0-\sin x\cdot 1=-\sin x\). \(\blacksquare\)<br><br>
+    <strong>Méthode 2 (parité/translation) :</strong> \(\cos x=\sin(\pi/2-x)\), donc \((\cos x)'=-(\sin(\pi/2-x))'=-\cos(\pi/2-x)\cdot(-1)=-\cos(\pi/2-x)=-\sin x\). \(\blacksquare\)
+  </div>
+
+  <h3>Démo 4 — Formule de duplication \(\sin(2a)=2\sin a\cos a\)</h3>
+  <div class="block demo" data-label="Démonstration">
+    Application directe de la formule d'addition \(\sin(a+b)=\sin a\cos b+\cos a\sin b\) avec \(b=a\) :<br><br>
+    \(\sin(a+a)=\sin a\cos a+\cos a\sin a=2\sin a\cos a\). \(\blacksquare\)
+  </div>
+
+  <h3>Démo 5 — \(\cos(2a)=2\cos^2a-1\)</h3>
+  <div class="block demo" data-label="Démonstration">
+    De \(\cos(2a)=\cos^2a-\sin^2a\) et \(\sin^2a=1-\cos^2a\) :<br><br>
+    \(\cos(2a)=\cos^2a-(1-\cos^2a)=2\cos^2a-1\). \(\blacksquare\)
+  </div>
+</section>
+
+<!-- ══════════ 09 PYTHON ══════════ -->
+<section id="python">
+  <div class="sec-hd"><span class="sec-num">09</span><h2>Algorithmes Python</h2></div>
+
+  <!-- PY 1 -->
+  <div class="py-block" id="py1">
+    <div class="py-hd">
+      <div style="display:flex;align-items:center">
+        <div class="py-dots"><div class="py-dot r"></div><div class="py-dot y"></div><div class="py-dot g"></div></div>
+        <div class="py-meta"><span class="py-title">valeurs_exactes.py</span><span class="py-badge">Programme officiel</span></div>
+      </div>
+      <div class="py-acts">
+        <button class="btn-run" onclick="runPy('py1')">▶ Exécuter</button>
+        <button class="btn-dl"  onclick="dlPy('py1')">⬇ .py</button>
+        <button class="btn-rst" onclick="rstPy('py1')">↺</button>
+      </div>
+    </div>
+    <textarea class="py-code" id="py1-code">"""
+Valeurs exactes et propriétés de sin et cos.
+"""
+import math
+
+# ── Valeurs exactes ────────────────────────────────────
+angles = {
+    '0':       0,
+    'π/6':     math.pi/6,
+    'π/4':     math.pi/4,
+    'π/3':     math.pi/3,
+    'π/2':     math.pi/2,
+    '2π/3':    2*math.pi/3,
+    '3π/4':    3*math.pi/4,
+    'π':       math.pi,
+    '3π/2':    3*math.pi/2,
+    '2π':      2*math.pi,
+}
+
+print(f"{'Angle':>8}  {'cos':>10}  {'sin':>10}  {'cos²+sin²':>12}")
+print("-" * 48)
+for nom, theta in angles.items():
+    c = math.cos(theta)
+    s = math.sin(theta)
+    veri = c**2 + s**2
+    print(f"{nom:>8}  {c:>10.6f}  {s:>10.6f}  {veri:>12.10f}")
+
+print()
+# ── Vérification des propriétés ───────────────────────
+print("=== Parité ===")
+for theta in [math.pi/6, math.pi/3, math.pi/4, 1.2]:
+    cos_neg = math.cos(-theta)
+    cos_pos = math.cos(theta)
+    sin_neg = math.sin(-theta)
+    sin_pos = math.sin(theta)
+    print(f"  θ={theta:.4f}: cos(-θ)={cos_neg:.6f} = cos(θ)={cos_pos:.6f} ✓  sin(-θ)={sin_neg:.6f} = -sin(θ)={-sin_pos:.6f} ✓")
+
+print()
+print("=== Périodicité (période 2π) ===")
+for theta in [0.5, 1.2, math.pi/4]:
+    print(f"  θ={theta:.4f}: cos(θ+2π)={math.cos(theta+2*math.pi):.8f} = cos(θ)={math.cos(theta):.8f}")
+
+print()
+print("=== Relations de symétrie ===")
+theta = math.pi/6
+print(f"  cos(π-θ) = {math.cos(math.pi-theta):.6f}  = -cos(θ) = {-math.cos(theta):.6f}")
+print(f"  sin(π-θ) = {math.sin(math.pi-theta):.6f}  =  sin(θ) = {math.sin(theta):.6f}")
+print(f"  cos(π/2-θ) = {math.cos(math.pi/2-theta):.6f} = sin(θ) = {math.sin(theta):.6f}")</textarea>
+    <div class="py-out" id="py1-out"></div>
+  </div>
+
+  <!-- PY 2 -->
+  <div class="py-block" id="py2">
+    <div class="py-hd">
+      <div style="display:flex;align-items:center">
+        <div class="py-dots"><div class="py-dot r"></div><div class="py-dot y"></div><div class="py-dot g"></div></div>
+        <div class="py-meta"><span class="py-title">formules_addition.py</span><span class="py-badge">Programme officiel</span></div>
+      </div>
+      <div class="py-acts">
+        <button class="btn-run" onclick="runPy('py2')">▶ Exécuter</button>
+        <button class="btn-dl"  onclick="dlPy('py2')">⬇ .py</button>
+        <button class="btn-rst" onclick="rstPy('py2')">↺</button>
+      </div>
+    </div>
+    <textarea class="py-code" id="py2-code">"""
+Vérification des formules d'addition et de duplication.
+"""
+import math
+
+def verifier(nom, lhs, rhs, tol=1e-12):
+    ok = abs(lhs - rhs) < tol
+    print(f"  {'✓' if ok else '✗'} {nom}")
+    if not ok:
+        print(f"    LHS={lhs:.12f}  RHS={rhs:.12f}  écart={abs(lhs-rhs):.2e}")
+
+print("=== Formules d'addition ===\n")
+paires = [(math.pi/6, math.pi/4), (0.7, 1.2), (math.pi/3, math.pi/6)]
+for a, b in paires:
+    print(f"  a={a:.4f}, b={b:.4f}")
+    verifier("cos(a+b) = cos(a)cos(b)-sin(a)sin(b)",
+             math.cos(a+b), math.cos(a)*math.cos(b)-math.sin(a)*math.sin(b))
+    verifier("sin(a+b) = sin(a)cos(b)+cos(a)sin(b)",
+             math.sin(a+b), math.sin(a)*math.cos(b)+math.cos(a)*math.sin(b))
+    verifier("cos(a-b) = cos(a)cos(b)+sin(a)sin(b)",
+             math.cos(a-b), math.cos(a)*math.cos(b)+math.sin(a)*math.sin(b))
+    print()
+
+print("=== Formules de duplication ===\n")
+for a in [math.pi/6, math.pi/4, 0.8, 1.5]:
+    print(f"  a={a:.4f}")
+    verifier("sin(2a) = 2sin(a)cos(a)", math.sin(2*a), 2*math.sin(a)*math.cos(a))
+    verifier("cos(2a) = cos²(a)-sin²(a)", math.cos(2*a), math.cos(a)**2-math.sin(a)**2)
+    verifier("cos(2a) = 2cos²(a)-1", math.cos(2*a), 2*math.cos(a)**2-1)
+    verifier("cos(2a) = 1-2sin²(a)", math.cos(2*a), 1-2*math.sin(a)**2)
+    print()
+
+print("=== Formules de linéarisation ===")
+for a in [math.pi/4, 0.6]:
+    print(f"  a={a:.4f}")
+    verifier("cos²(a) = (1+cos(2a))/2", math.cos(a)**2, (1+math.cos(2*a))/2)
+    verifier("sin²(a) = (1-cos(2a))/2", math.sin(a)**2, (1-math.cos(2*a))/2)
+    print()</textarea>
+    <div class="py-out" id="py2-out"></div>
+  </div>
+
+  <!-- PY 3 -->
+  <div class="py-block" id="py3">
+    <div class="py-hd">
+      <div style="display:flex;align-items:center">
+        <div class="py-dots"><div class="py-dot r"></div><div class="py-dot y"></div><div class="py-dot g"></div></div>
+        <div class="py-meta"><span class="py-title">derivees_trigo.py</span><span class="py-badge">Programme officiel</span></div>
+      </div>
+      <div class="py-acts">
+        <button class="btn-run" onclick="runPy('py3')">▶ Exécuter</button>
+        <button class="btn-dl"  onclick="dlPy('py3')">⬇ .py</button>
+        <button class="btn-rst" onclick="rstPy('py3')">↺</button>
+      </div>
+    </div>
+    <textarea class="py-code" id="py3-code">"""
+Dérivées de fonctions trigonométriques — vérification numérique.
+"""
+import math
+
+def deriv_num(f, x, h=1e-8):
+    return (f(x+h) - f(x-h)) / (2*h)
+
+fonctions = [
+    ('sin(3x)',        lambda x: math.sin(3*x),                      lambda x: 3*math.cos(3*x)),
+    ('cos(x²)',        lambda x: math.cos(x**2),                     lambda x: -2*x*math.sin(x**2)),
+    ('sin²(x)',        lambda x: math.sin(x)**2,                     lambda x: 2*math.sin(x)*math.cos(x)),
+    ('e^sin(x)',       lambda x: math.exp(math.sin(x)),              lambda x: math.cos(x)*math.exp(math.sin(x))),
+    ('x·cos(x)',       lambda x: x*math.cos(x),                      lambda x: math.cos(x)-x*math.sin(x)),
+    ('sin(2x)cos(3x)', lambda x: math.sin(2*x)*math.cos(3*x),       lambda x: 2*math.cos(2*x)*math.cos(3*x)-3*math.sin(2*x)*math.sin(3*x)),
+]
+
+print(f"{'Fonction':>20} {'x':>5} {'f\'(exacte)':>14} {'f\'(num)':>14} {'écart':>10}")
+print("-" * 68)
+for nom, f, fp in fonctions:
+    for x in [0.3, math.pi/4, 1.0]:
+        try:
+            fpx = fp(x)
+            fpn = deriv_num(f, x)
+            print(f"{nom:>20} {x:>5.3f} {fpx:>14.8f} {fpn:>14.8f} {abs(fpx-fpn):>10.2e}")
+        except Exception as e:
+            print(f"{nom:>20} {x:>5.3f} ERREUR: {e}")
+    print()
+
+# ── Dérivée de sin et cos vérifiée directement ────────
+print("=== (sin x)' = cos x et (cos x)' = -sin x ===")
+for x in [0, math.pi/6, math.pi/4, math.pi/2, 1.2]:
+    ds = deriv_num(math.sin, x)
+    dc = deriv_num(math.cos, x)
+    print(f"  x={x:.4f}: sin'≈{ds:.8f} cos(x)={math.cos(x):.8f} | cos'≈{dc:.8f} -sin(x)={-math.sin(x):.8f}")</textarea>
+    <div class="py-out" id="py3-out"></div>
+  </div>
+
+  <!-- PY 4 -->
+  <div class="py-block" id="py4">
+    <div class="py-hd">
+      <div style="display:flex;align-items:center">
+        <div class="py-dots"><div class="py-dot r"></div><div class="py-dot y"></div><div class="py-dot g"></div></div>
+        <div class="py-meta"><span class="py-title">equations_trigo.py</span><span class="py-badge">Programme officiel</span></div>
+      </div>
+      <div class="py-acts">
+        <button class="btn-run" onclick="runPy('py4')">▶ Exécuter</button>
+        <button class="btn-dl"  onclick="dlPy('py4')">⬇ .py</button>
+        <button class="btn-rst" onclick="rstPy('py4')">↺</button>
+      </div>
+    </div>
+    <textarea class="py-code" id="py4-code">"""
+Résolution d'équations trigonométriques.
+"""
+import math
+
+def resoudre_cos(a, k_min=-2, k_max=2):
+    """Solutions de cos(x) = a."""
+    if abs(a) > 1:
+        print(f"  Pas de solution (|a|={abs(a)}>1)")
+        return []
+    x0 = math.acos(a)
+    sols = []
+    for k in range(k_min, k_max+1):
+        sols.append(x0 + 2*k*math.pi)
+        if abs(x0) > 1e-10:  # éviter les doublons pour x0=0
+            sols.append(-x0 + 2*k*math.pi)
+    sols.sort()
+    return sols
+
+def resoudre_sin(a, k_min=-2, k_max=2):
+    """Solutions de sin(x) = a."""
+    if abs(a) > 1:
+        print(f"  Pas de solution (|a|={abs(a)}>1)")
+        return []
+    x0 = math.asin(a)
+    sols = []
+    for k in range(k_min, k_max+1):
+        sols.append(x0 + 2*k*math.pi)
+        sols.append(math.pi - x0 + 2*k*math.pi)
+    sols.sort()
+    return sols
+
+def solutions_sur_0_2pi(sols):
+    """Filtre les solutions dans [0, 2π]."""
+    return sorted([x for x in sols if -1e-9 <= x <= 2*math.pi+1e-9])
+
+# ── Tests ──────────────────────────────────────────────
+print("=== cos(x) = a ===\n")
+for a in [0.5, -0.5, 1, -1, 0, math.sqrt(3)/2]:
+    sols = resoudre_cos(a)
+    sur_0_2pi = solutions_sur_0_2pi(sols)
+    print(f"  cos(x) = {a:.4f}")
+    print(f"  Solutions générales : x = ±arccos({a:.4f}) + 2kπ = ±{math.acos(a) if abs(a)<=1 else '?':.4f} + 2kπ")
+    print(f"  Sur [0;2π] : {[round(x,4) for x in sur_0_2pi]}")
+    # Vérification
+    for x in sur_0_2pi:
+        assert abs(math.cos(x) - a) < 1e-9, f"ERREUR vérification x={x}"
+    print(f"  Vérification : ✓\n")
+
+print("=== sin(x) = a ===\n")
+for a in [0.5, -0.5, 1, -1, 0]:
+    sols = resoudre_sin(a)
+    sur_0_2pi = solutions_sur_0_2pi(sols)
+    print(f"  sin(x) = {a:.4f}")
+    print(f"  Sur [0;2π] : {[round(x,4) for x in sur_0_2pi]}")
+    for x in sur_0_2pi:
+        assert abs(math.sin(x) - a) < 1e-9, f"ERREUR vérification x={x}"
+    print(f"  Vérification : ✓\n")</textarea>
+    <div class="py-out" id="py4-out"></div>
+  </div>
+
+  <!-- PY 5 bac à sable -->
+  <div class="py-block" id="py5">
+    <div class="py-hd">
+      <div style="display:flex;align-items:center">
+        <div class="py-dots"><div class="py-dot r"></div><div class="py-dot y"></div><div class="py-dot g"></div></div>
+        <div class="py-meta"><span class="py-title">bac_a_sable.py</span><span class="py-badge">Libre</span></div>
+      </div>
+      <div class="py-acts">
+        <button class="btn-run" onclick="runPy('py5')">▶ Exécuter</button>
+        <button class="btn-dl"  onclick="dlPy('py5')">⬇ .py</button>
+        <button class="btn-rst" onclick="rstPy('py5')">↺</button>
+      </div>
+    </div>
+    <textarea class="py-code" id="py5-code">import math
+
+# ── Zone libre — série de Fourier ──────────────────────
+# Approximation d'un signal carré par une série de Fourier :
+# f(t) = (4/π) Σ sin((2k-1)t) / (2k-1)
+
+def carre_fourier(t, N):
+    """Approximation de f(t) = signe(sin(t)) par N harmoniques."""
+    s = 0
+    for k in range(1, N+1):
+        s += math.sin((2*k-1)*t) / (2*k-1)
+    return 4/math.pi * s
+
+def signal_carre_exact(t):
+    """Signe de sin(t) : signal carré exact."""
+    v = math.sin(t)
+    return 1.0 if v > 0 else (-1.0 if v < 0 else 0.0)
+
+print("Approximation du signal carré par séries de Fourier")
+print("=" * 55)
+t_vals = [0.3, 0.8, 1.2, math.pi/4, math.pi/2 - 0.1]
+print(f"{'t':>8}  {'Exact':>8}  {'N=1':>8}  {'N=5':>8}  {'N=10':>8}  {'N=50':>8}")
+print("-" * 55)
+for t in t_vals:
+    exact = signal_carre_exact(t)
+    approx = [carre_fourier(t, N) for N in [1, 5, 10, 50]]
+    print(f"{t:>8.4f}  {exact:>8.4f}  {approx[0]:>8.4f}  {approx[1]:>8.4f}  {approx[2]:>8.4f}  {approx[3]:>8.4f}")
+
+print()
+print("Plus N est grand, meilleure est l'approximation !")
+print("(Phénomène de Gibbs aux discontinuités)")
+</textarea>
+    <div class="py-out" id="py5-out"></div>
+  </div>
+</section>
+
+<!-- ══════════ 10 QCM ══════════ -->
+<section id="qcm">
+  <div class="sec-hd"><span class="sec-num">10</span><h2>QCM interactif</h2></div>
+
+  <div class="qcm-top">
+    <div class="chrono">
+      <span style="font-size:0.75rem;color:var(--ink3)">⏱</span>
+      <span class="chrono-d" id="c-d">00:00</span>
+      <button class="btn-s" id="btn-c" onclick="toggleC()" style="padding:0.24rem 0.58rem;font-size:0.7rem;">Pause</button>
+      <button class="btn-s" onclick="resetC()" style="padding:0.24rem 0.58rem;font-size:0.7rem;">↺</button>
+    </div>
+    <div><span style="font-size:0.82rem;color:var(--ink3)">Score : </span><span class="score-v" id="sc-v">0 / 0</span></div>
+  </div>
+
+  <div id="qcm-c"></div>
+
+  <div class="qcm-acts">
+    <button class="btn-p" onclick="submitQCM()">Valider le QCM</button>
+    <button class="btn-s" onclick="newQCM()">↺ Nouveau QCM</button>
+  </div>
+
+  <div class="qcm-res" id="qcm-r">
+    <div class="res-sc" id="r-sc"></div>
+    <div class="res-msg" id="r-msg"></div>
+    <br>
+    <button class="btn-p" onclick="newQCM()">↺ Nouveau QCM</button>
+  </div>
+</section>
+
+<!-- ══════════ 11 CONTACT ══════════ -->
+<section id="contact">
+  <div class="sec-hd"><span class="sec-num">11</span><h2>Prendre rendez-vous</h2></div>
+
+  <div class="cg">
+    <a class="cc" href="https://docs.google.com/forms/d/e/1FAIpQLSfiOvJG1wicFQY8EQufqy5YxGgTPSFPxdyb-OAtk95SUGxWFA/viewform" target="_blank" rel="noopener">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=00e5ff&bgcolor=0a101e&data=https%3A%2F%2Fdocs.google.com%2Fforms%2Fd%2Fe%2F1FAIpQLSfiOvJG1wicFQY8EQufqy5YxGgTPSFPxdyb-OAtk95SUGxWFA%2Fviewform" alt="QR Formulaire">
+      <div class="cc-t">Formulaire</div>
+      <div class="cc-s">Avis, erreur ou question</div>
+      <span class="cc-l">Google Forms ↗</span>
+    </a>
+    <a class="cc" href="https://calendly.com/didaskalosmanthanon/30min" target="_blank" rel="noopener">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=00c8a0&bgcolor=0a101e&data=https%3A%2F%2Fcalendly.com%2Fdidaskalosmanthanon%2F30min" alt="QR Élèves">
+      <div class="cc-t">Élèves — 30 min</div>
+      <div class="cc-s">Soutien individuel</div>
+      <span class="cc-l">Calendly ↗</span>
+    </a>
+    <a class="cc" href="https://calendly.com/didaskalosmanthanon/appel-pro-formation-ou-collaboration-45-min" target="_blank" rel="noopener">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=ffd040&bgcolor=0a101e&data=https%3A%2F%2Fcalendly.com%2Fdidaskalosmanthanon%2Fappel-pro-formation-ou-collaboration-45-min" alt="QR Prof">
+      <div class="cc-t">Professeurs — 45 min</div>
+      <div class="cc-s">Formation, collaboration</div>
+      <span class="cc-l">Calendly ↗</span>
+    </a>
+    <a class="cc" href="https://calendly.com/didaskalosmanthanon/point-parents-presentation-de-l-outil-15-min" target="_blank" rel="noopener">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=a060ff&bgcolor=0a101e&data=https%3A%2F%2Fcalendly.com%2Fdidaskalosmanthanon%2Fpoint-parents-presentation-de-l-outil-15-min" alt="QR Parents">
+      <div class="cc-t">Parents — 15 min</div>
+      <div class="cc-s">Présentation &amp; suivi</div>
+      <span class="cc-l">Calendly ↗</span>
+    </a>
+  </div>
+
+  <p style="text-align:center;margin-top:2.5rem;font-size:0.74rem;color:var(--ink3);font-family:var(--font-m);letter-spacing:0.06em;">
+    TERMINALE · SPÉCIALITÉ MATHÉMATIQUES ·
+    <a href="https://eduscol.education.gouv.fr/sites/default/files/document/spe246annexe1158907pdf-84159.pdf"
+       target="_blank" style="color:var(--cyan);text-decoration:none;">PROGRAMME OFFICIEL ÉDUSCOL</a>
+    · FONCTIONS SINUS ET COSINUS
+  </p>
+</section>
+</main>
+
+<!-- ══════════ SCRIPTS ══════════ -->
+<script>
+const PI = Math.PI;
+const R4 = v => isFinite(v) ? Math.round(v * 10000) / 10000 : '∞';
+
+// ── HEADER WAVE ──────────────────────────────────────
+(function() {
+  const c = document.getElementById('header-wave');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0;
+  function draw() {
+    const W = c.parentElement.offsetWidth, H = 60;
+    c.width = W; c.height = H;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= W; i++) {
+      const x = i, y = H/2 - 18*Math.sin(2*PI*i/W*3 + t);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = '#ff2d78'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i <= W; i++) {
+      const x = i, y = H/2 - 12*Math.cos(2*PI*i/W*5 + t*1.3);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    t += 0.02;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── CERCLE TRIGONOMÉTRIQUE ───────────────────────────
+let circAnimId = null, circRunning = false, circTheta = PI/6;
+
+function drawCircle(theta) {
+  const canvas = document.getElementById('canvas-circ');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 880, H = canvas.offsetHeight || 380;
+  canvas.width = W; canvas.height = H;
+
+  const cx = W * 0.38, cy = H / 2, R = Math.min(cx, cy) - 30;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a101e'; ctx.fillRect(0, 0, W, H);
+
+  // Grid faint
+  ctx.strokeStyle = 'rgba(14,30,48,0.9)'; ctx.lineWidth = 0.5;
+  for (let i = -4; i <= 4; i++) {
+    ctx.beginPath(); ctx.moveTo(cx + i*R/2, cy - R - 10); ctx.lineTo(cx + i*R/2, cy + R + 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - R - 10, cy + i*R/2); ctx.lineTo(cx + R + 10, cy + i*R/2); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = 'rgba(0,229,255,0.3)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(cx - R - 20, cy); ctx.lineTo(cx + R + 20, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy - R - 20); ctx.lineTo(cx, cy + R + 20); ctx.stroke();
+  ctx.fillStyle = 'rgba(0,229,255,0.5)'; ctx.font = '11px Fira Code, monospace';
+  ctx.fillText('x', cx + R + 22, cy + 4);
+  ctx.fillText('y', cx + 4, cy - R - 22);
+  ctx.fillText('O', cx + 5, cy + 14);
+  ctx.fillText('1', cx + R - 4, cy + 14);
+  ctx.fillText('-1', cx - R - 18, cy + 14);
+  ctx.fillText('1', cx + 4, cy - R + 4);
+  ctx.fillText('-1', cx + 4, cy + R + 12);
+
+  // Unit circle
+  ctx.strokeStyle = 'rgba(0,229,255,0.35)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2*PI); ctx.stroke();
+
+  // Special angle markers
+  const specialAngles = [0, PI/6, PI/4, PI/3, PI/2, 2*PI/3, 3*PI/4, 5*PI/6, PI, 7*PI/6, 5*PI/4, 4*PI/3, 3*PI/2, 5*PI/3, 7*PI/4, 11*PI/6];
+  specialAngles.forEach(a => {
+    const px = cx + R * Math.cos(a), py = cy - R * Math.sin(a);
+    ctx.fillStyle = 'rgba(0,229,255,0.25)';
+    ctx.beginPath(); ctx.arc(px, py, 3, 0, 2*PI); ctx.fill();
+  });
+
+  const mx = cx + R * Math.cos(theta), my = cy - R * Math.sin(theta);
+  const cosV = Math.cos(theta), sinV = Math.sin(theta);
+
+  // cos projection (horizontal)
+  ctx.strokeStyle = 'rgba(0,229,255,0.7)'; ctx.lineWidth = 2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(mx, cy); ctx.stroke();
+
+  // sin projection (vertical)
+  ctx.strokeStyle = 'rgba(255,45,120,0.7)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(mx, cy); ctx.lineTo(mx, my); ctx.stroke();
+
+  // cos dashed to M
+  ctx.strokeStyle = 'rgba(0,229,255,0.3)'; ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx, cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Radius
+  ctx.strokeStyle = '#ffd040'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(mx, my); ctx.stroke();
+
+  // Arc
+  ctx.strokeStyle = 'rgba(255,208,64,0.5)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(cx, cy, 28, 0, -theta, theta < 0); ctx.stroke();
+  // θ label
+  const midA = theta / 2;
+  ctx.fillStyle = '#ffd040'; ctx.font = '11px Fira Code,monospace';
+  ctx.fillText('θ', cx + 34*Math.cos(midA) - 4, cy - 34*Math.sin(midA) + 4);
+
+  // M dot
+  ctx.fillStyle = '#ffd040';
+  ctx.beginPath(); ctx.arc(mx, my, 6, 0, 2*PI); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Fira Code,monospace';
+  ctx.fillText('M', mx + 8, my - 6);
+
+  // cos label on x-axis
+  ctx.fillStyle = '#00e5ff';
+  ctx.beginPath(); ctx.arc(mx, cy, 4, 0, 2*PI); ctx.fill();
+  ctx.font = '11px Fira Code,monospace';
+  ctx.fillText(`cos θ`, mx - 16, cy + 18);
+
+  // sin label
+  ctx.fillStyle = '#ff2d78';
+  ctx.beginPath(); ctx.arc(mx, my, 3, 0, 2*PI); ctx.fill();
+  ctx.font = '11px Fira Code,monospace';
+  ctx.fillText(`sin θ`, cx - R - 5, (cy + my)/2 + 4);
+  ctx.beginPath(); ctx.arc(cx, my, 3, 0, 2*PI); ctx.fill();
+
+  // Right panel — numerical values + graph preview
+  const px2 = W * 0.7, gW = W - px2 - 20, gH = H - 40;
+  const gy = H / 2;
+
+  ctx.fillStyle = '#0c1222'; ctx.fillRect(px2, 20, gW, gH);
+  ctx.strokeStyle = var2hex('--border'); ctx.lineWidth = 0.5;
+  ctx.strokeRect(px2, 20, gW, gH);
+
+  // Values display
+  ctx.font = 'bold 12px Fira Code,monospace';
+  ctx.fillStyle = '#ffd040'; ctx.fillText(`θ = ${R4(theta)} rad`, px2 + 10, 50);
+  ctx.fillStyle = '#fff';    ctx.fillText(`  = ${R4(theta*180/PI)}°`, px2 + 10, 66);
+  ctx.fillStyle = '#00e5ff'; ctx.fillText(`cos θ = ${R4(cosV)}`, px2 + 10, 100);
+  ctx.fillStyle = '#ff6fa0'; ctx.fillText(`sin θ = ${R4(sinV)}`, px2 + 10, 118);
+  ctx.fillStyle = '#a060ff'; ctx.fillText(`cos²+sin² = ${R4(cosV*cosV+sinV*sinV)}`, px2 + 10, 136);
+
+  // Mini sine/cosine preview
+  const miny = 165, maxy = gH + 20 - 10, mHeight = maxy - miny;
+  const mW = gW - 20;
+  ctx.strokeStyle = 'rgba(0,229,255,0.4)'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i <= mW; i++) {
+    const a = -PI + i/mW * 4*PI;
+    const y = miny + mHeight/2 - (mHeight/2 - 6)*Math.cos(a);
+    i === 0 ? ctx.moveTo(px2+10+i, y) : ctx.lineTo(px2+10+i, y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,45,120,0.4)'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i <= mW; i++) {
+    const a = -PI + i/mW * 4*PI;
+    const y = miny + mHeight/2 - (mHeight/2 - 6)*Math.sin(a);
+    i === 0 ? ctx.moveTo(px2+10+i, y) : ctx.lineTo(px2+10+i, y);
+  }
+  ctx.stroke();
+  // theta marker on mini graph
+  const ti = (theta + PI) / (4*PI) * mW;
+  if (ti >= 0 && ti <= mW) {
+    const yc = miny + mHeight/2 - (mHeight/2 - 6)*cosV;
+    const ys = miny + mHeight/2 - (mHeight/2 - 6)*sinV;
+    ctx.fillStyle = '#00e5ff'; ctx.beginPath(); ctx.arc(px2+10+ti, yc, 4, 0, 2*PI); ctx.fill();
+    ctx.fillStyle = '#ff2d78'; ctx.beginPath(); ctx.arc(px2+10+ti, ys, 4, 0, 2*PI); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,208,64,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(px2+10+ti, miny); ctx.lineTo(px2+10+ti, maxy); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Update display
+  document.getElementById('circ-vals').textContent =
+    `cos=${R4(cosV)}  sin=${R4(sinV)}  θ=${R4(theta*180/PI)}°`;
+}
+
+function var2hex(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#0e1e30'; }
+
+function updateCircle() {
+  const v = +document.getElementById('circ-theta').value;
+  circTheta = v;
+  drawCircle(v);
+}
+window.addEventListener('resize', () => drawCircle(circTheta));
+setTimeout(() => drawCircle(circTheta), 100);
+
+function toggleCircAnim() {
+  circRunning = document.getElementById('circ-anim').checked;
+  if (circRunning) {
+    (function loop() {
+      if (!circRunning) return;
+      circTheta += 0.025;
+      document.getElementById('circ-theta').value = R4(circTheta);
+      drawCircle(circTheta);
+      circAnimId = requestAnimationFrame(loop);
+    })();
+  } else {
+    cancelAnimationFrame(circAnimId);
+  }
+}
+
+// ── WAVES ────────────────────────────────────────────
+function drawWaves() {
+  const canvas = document.getElementById('canvas-waves');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 880, H = canvas.offsetHeight || 260;
+  canvas.width = W; canvas.height = H;
+  const periods = +document.getElementById('wave-per').value || 2;
+  const showSin = document.getElementById('show-sin').checked;
+  const showCos = document.getElementById('show-cos').checked;
+  const xmin = 0, xmax = periods * 2*PI;
+  const pad = {l:50,r:20,t:15,b:35};
+  const gW = W-pad.l-pad.r, gH = H-pad.t-pad.b;
+  const toX = t => pad.l + (t-xmin)/(xmax-xmin)*gW;
+  const toY = v => pad.t + gH/2 - v*(gH/2-5);
+
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a101e'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='rgba(14,30,48,0.9)'; ctx.lineWidth=0.7;
+  for(let k=0;k<=Math.ceil(periods*2);k++){
+    const x=toX(k*PI);
+    ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+gH);ctx.stroke();
+    ctx.fillStyle='rgba(120,152,184,0.5)';ctx.font='9px Fira Code,monospace';
+    ctx.fillText(k===0?'0':`${k}π`,x-8,pad.t+gH+14);
+  }
+  for(let v of[-1,-0.5,0,0.5,1]){
+    const y=toY(v);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gW,y);ctx.stroke();
+    ctx.fillStyle='rgba(120,152,184,0.5)';ctx.font='9px Fira Code,monospace';
+    ctx.fillText(v,2,y+3);
+  }
+
+  // Zero axis
+  ctx.strokeStyle='rgba(0,229,255,0.2)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,toY(0));ctx.lineTo(pad.l+gW,toY(0));ctx.stroke();
+
+  // sin
+  if(showSin){
+    ctx.strokeStyle='#ff2d78';ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(let i=0;i<=W*2;i++){
+      const t=xmin+i/(W*2)*(xmax-xmin);
+      const v=Math.sin(t);
+      i===0?ctx.moveTo(toX(t),toY(v)):ctx.lineTo(toX(t),toY(v));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#ff6fa0';ctx.font='bold 11px Fira Code,monospace';
+    ctx.fillText('sin(x)',pad.l+6,pad.t+14);
+  }
+
+  // cos
+  if(showCos){
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(let i=0;i<=W*2;i++){
+      const t=xmin+i/(W*2)*(xmax-xmin);
+      const v=Math.cos(t);
+      i===0?ctx.moveTo(toX(t),toY(v)):ctx.lineTo(toX(t),toY(v));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#00e5ff';ctx.font='bold 11px Fira Code,monospace';
+    ctx.fillText('cos(x)',pad.l+6,pad.t+(showSin?28:14));
+  }
+}
+window.addEventListener('resize', drawWaves);
+setTimeout(drawWaves, 120);
+
+// ── EQUATIONS GRAPH ──────────────────────────────────
+function drawEqGraph() {
+  const canvas = document.getElementById('canvas-eq');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 880, H = canvas.offsetHeight || 340;
+  canvas.width = W; canvas.height = H;
+  const eqType = document.getElementById('eq-type').value;
+  const a = +document.getElementById('eq-a').value;
+
+  const cx = W*0.3, cy = H/2, R = Math.min(cx, cy) - 25;
+
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a101e'; ctx.fillRect(0,0,W,H);
+
+  // Circle
+  ctx.strokeStyle='rgba(0,229,255,0.25)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(cx,cy,R,0,2*PI);ctx.stroke();
+
+  // Axes
+  ctx.strokeStyle='rgba(0,229,255,0.2)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(cx-R-15,cy);ctx.lineTo(cx+R+15,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-R-15);ctx.lineTo(cx,cy+R+15);ctx.stroke();
+
+  // Reference line and solutions
+  let sols = [], lineX1, lineY1, lineX2, lineY2;
+  if (eqType === 'cos' && Math.abs(a) <= 1) {
+    // cos(θ)=a → vertical line x=a·R
+    const px = cx + a*R;
+    lineX1=px; lineY1=cy-R-10; lineX2=px; lineY2=cy+R+10;
+    ctx.strokeStyle='rgba(255,208,64,0.6)';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);
+    ctx.beginPath();ctx.moveTo(lineX1,lineY1);ctx.lineTo(lineX2,lineY2);ctx.stroke();ctx.setLineDash([]);
+
+    const theta0 = Math.acos(a);
+    sols = [theta0, -theta0];
+  } else if (eqType === 'sin' && Math.abs(a) <= 1) {
+    // sin(θ)=a → horizontal line y=a
+    const py = cy - a*R;
+    lineX1=cx-R-10; lineY1=py; lineX2=cx+R+10; lineY2=py;
+    ctx.strokeStyle='rgba(255,208,64,0.6)';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);
+    ctx.beginPath();ctx.moveTo(lineX1,lineY1);ctx.lineTo(lineX2,lineY2);ctx.stroke();ctx.setLineDash([]);
+
+    const theta0 = Math.asin(a);
+    sols = [theta0, PI - theta0];
+  }
+
+  // Mark solutions
+  const colors = ['#00e5ff','#ff2d78'];
+  sols.forEach((theta, i) => {
+    const mx = cx + R*Math.cos(theta), my = cy - R*Math.sin(theta);
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();ctx.arc(mx,my,7,0,2*PI);ctx.fill();
+    // Radius
+    ctx.strokeStyle = colors[i];ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(mx,my);ctx.stroke();
+    // Label
+    ctx.font='bold 11px Fira Code,monospace';ctx.fillStyle=colors[i];
+    const labelR = R + 18;
+    ctx.fillText(`θ${i+1}≈${R4(theta)}`,cx+labelR*Math.cos(theta)-20,cy-labelR*Math.sin(theta)+4);
+  });
+
+  // Right panel — wave
+  const px2 = W*0.62, gW2=W-px2-20, gH2=H-40;
+  ctx.fillStyle='#0c1222';ctx.fillRect(px2,20,gW2,gH2);
+
+  const xmin2=0,xmax2=2*PI;
+  const p2={l:10,r:10,t:10,b:20};
+  const tox2=t=>px2+p2.l+(t-xmin2)/(xmax2-xmin2)*(gW2-p2.l-p2.r);
+  const toy2=v=>20+p2.t+(gH2-p2.t-p2.b)/2*(1-v);
+
+  // Gridline y=a
+  const yLine=toy2(a);
+  ctx.strokeStyle='rgba(255,208,64,0.5)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(px2+p2.l,yLine);ctx.lineTo(px2+gW2-p2.r,yLine);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#ffd040';ctx.font='10px Fira Code,monospace';ctx.fillText(`a=${R4(a)}`,px2+gW2-p2.r-35,yLine-3);
+
+  // Function curve
+  const fn = eqType==='cos' ? Math.cos : Math.sin;
+  const col = eqType==='cos' ? '#00e5ff' : '#ff2d78';
+  ctx.strokeStyle=col;ctx.lineWidth=2;
+  ctx.beginPath();
+  for(let i=0;i<=gW2*2;i++){
+    const t=xmin2+i/(gW2*2)*(xmax2-xmin2);
+    const v=fn(t);
+    i===0?ctx.moveTo(tox2(t),toy2(v)):ctx.lineTo(tox2(t),toy2(v));
+  }
+  ctx.stroke();
+
+  // Mark solutions on wave
+  sols.forEach((theta,i)=>{
+    const ts = ((theta % (2*PI)) + 2*PI) % (2*PI);
+    const xs=tox2(ts), ys=toy2(fn(ts));
+    ctx.fillStyle=colors[i];ctx.beginPath();ctx.arc(xs,ys,5,0,2*PI);ctx.fill();
+    ctx.strokeStyle='rgba(255,208,64,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(xs,yLine);ctx.lineTo(xs,ys);ctx.stroke();ctx.setLineDash([]);
+  });
+
+  // Labels
+  ctx.fillStyle=col;ctx.font='bold 10px Fira Code,monospace';
+  ctx.fillText(eqType==='cos'?'cos(θ)':'sin(θ)',px2+p2.l,20+p2.t+12);
+}
+window.addEventListener('resize',drawEqGraph);
+setTimeout(drawEqGraph,130);
+
+// ── SIGNAL ───────────────────────────────────────────
+function drawSignal() {
+  const canvas=document.getElementById('canvas-signal');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||880,H=canvas.offsetHeight||260;
+  canvas.width=W;canvas.height=H;
+
+  const A=+document.getElementById('sig-A').value;
+  const w=+document.getElementById('sig-w').value;
+  const phi=+document.getElementById('sig-phi').value;
+  const showDeriv=document.getElementById('sig-deriv').checked;
+
+  document.getElementById('sig-A-v').textContent=A.toFixed(1);
+  document.getElementById('sig-w-v').textContent=w.toFixed(1);
+  document.getElementById('sig-phi-v').textContent=phi.toFixed(2);
+
+  const T=2*PI/w;
+  const xmax=3*T, xmin=0;
+  const pad={l:42,r:20,t:15,b:32};
+  const gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  const toX=t=>pad.l+(t-xmin)/(xmax-xmin)*gW;
+  const toY=v=>pad.t+gH/2-v*(gH/2-6)/Math.max(A,1);
+
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0a101e';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(14,30,48,0.9)';ctx.lineWidth=0.7;
+  for(let k=0;k<=3;k++){
+    const x=toX(k*T);
+    ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+gH);ctx.stroke();
+    ctx.fillStyle='rgba(120,152,184,0.5)';ctx.font='9px Fira Code,monospace';
+    ctx.fillText(`${k}T`,x-8,pad.t+gH+14);
+  }
+  for(let v of[-A,-A/2,0,A/2,A]){
+    const y=toY(v);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gW,y);ctx.stroke();
+    ctx.fillStyle='rgba(120,152,184,0.4)';ctx.font='9px Fira Code,monospace';
+    ctx.fillText(R4(v),2,y+3);
+  }
+  ctx.strokeStyle='rgba(0,229,255,0.2)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,toY(0));ctx.lineTo(pad.l+gW,toY(0));ctx.stroke();
+
+  // Amplitude lines
+  ctx.strokeStyle='rgba(160,96,255,0.3)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(pad.l,toY(A));ctx.lineTo(pad.l+gW,toY(A));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad.l,toY(-A));ctx.lineTo(pad.l+gW,toY(-A));ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Derivative
+  if(showDeriv){
+    ctx.strokeStyle='rgba(255,208,64,0.6)';ctx.lineWidth=1.5;
+    ctx.beginPath();
+    for(let i=0;i<=W*2;i++){
+      const t=xmin+i/(W*2)*(xmax-xmin);
+      const v=-A*w*Math.sin(w*t+phi);
+      i===0?ctx.moveTo(toX(t),toY(v)):ctx.lineTo(toX(t),toY(v));
+    }
+    ctx.stroke();
+  }
+
+  // Signal
+  ctx.strokeStyle='#00e5ff';ctx.lineWidth=2.4;
+  ctx.beginPath();
+  for(let i=0;i<=W*2;i++){
+    const t=xmin+i/(W*2)*(xmax-xmin);
+    const v=A*Math.cos(w*t+phi);
+    i===0?ctx.moveTo(toX(t),toY(v)):ctx.lineTo(toX(t),toY(v));
+  }
+  ctx.stroke();
+
+  // Period annotation
+  const T1=toX(0),T2=toX(T);
+  ctx.strokeStyle='rgba(160,96,255,0.5)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(T1,pad.t+4);ctx.lineTo(T2,pad.t+4);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(T1,pad.t+1);ctx.lineTo(T1,pad.t+7);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(T2,pad.t+1);ctx.lineTo(T2,pad.t+7);ctx.stroke();
+  ctx.fillStyle='#a060ff';ctx.font='10px Fira Code,monospace';
+  ctx.fillText(`T=${R4(T)}`,((T1+T2)/2)-10,pad.t-1);
+
+  // Labels
+  ctx.fillStyle='#00e5ff';ctx.font='bold 11px Fira Code,monospace';
+  ctx.fillText(`f(t) = ${A}·cos(${R4(w)}t + ${R4(phi)})`,pad.l+4,pad.t+14);
+  if(showDeriv){ctx.fillStyle='#ffd040';ctx.fillText(`f′(t) = −${R4(A*w)}·sin(${R4(w)}t+${R4(phi)})`,pad.l+4,pad.t+28);}
+}
+window.addEventListener('resize',drawSignal);
+setTimeout(drawSignal,140);
+
+// ── CALCULATEURS ─────────────────────────────────────
+const ANGLE_MAP = {
+  '0':PI*0,'pi6':PI/6,'pi4':PI/4,'pi3':PI/3,'pi2':PI/2,
+  '2pi3':2*PI/3,'3pi4':3*PI/4,'5pi6':5*PI/6,'pi':PI,
+  '7pi6':7*PI/6,'5pi4':5*PI/4,'4pi3':4*PI/3,'3pi2':3*PI/2,
+  '5pi3':5*PI/3,'7pi4':7*PI/4,'11pi6':11*PI/6,'2pi':2*PI
+};
+const ANGLE_LABELS = {
+  '0':'0','pi6':'π/6','pi4':'π/4','pi3':'π/3','pi2':'π/2',
+  '2pi3':'2π/3','3pi4':'3π/4','5pi6':'5π/6','pi':'π',
+  '7pi6':'7π/6','5pi4':'5π/4','4pi3':'4π/3','3pi2':'3π/2',
+  '5pi3':'5π/3','7pi4':'7π/4','11pi6':'11π/6','2pi':'2π'
+};
+function calcAngle() {
+  const key=document.getElementById('ang-val').value;
+  const theta=ANGLE_MAP[key]||0;
+  const el=document.getElementById('ang-res');
+  const c=Math.cos(theta),s=Math.sin(theta);
+  el.innerHTML=`θ = ${ANGLE_LABELS[key]} = ${R4(theta)} rad = ${R4(theta*180/PI)}°\ncos(θ) = ${R4(c)}\nsin(θ) = ${R4(s)}\ncos²+sin² = ${R4(c*c+s*s)}`;
+  if(window.MathJax)MathJax.typeset([el]);
+}
+calcAngle();
+
+function calcFormule() {
+  const a=+document.getElementById('fa-a').value;
+  const b=+document.getElementById('fa-b').value;
+  const el=document.getElementById('fa-res');
+  const ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b);
+  const results = [
+    `cos(a+b) = ${R4(Math.cos(a+b))}  =  cos(a)cos(b)-sin(a)sin(b) = ${R4(ca*cb-sa*sb)}`,
+    `sin(a+b) = ${R4(Math.sin(a+b))}  =  sin(a)cos(b)+cos(a)sin(b) = ${R4(sa*cb+ca*sb)}`,
+    `cos(2a)  = ${R4(Math.cos(2*a))}  =  2cos²(a)-1 = ${R4(2*ca*ca-1)}`,
+    `sin(2a)  = ${R4(Math.sin(2*a))}  =  2sin(a)cos(a) = ${R4(2*sa*ca)}`,
+  ];
+  el.textContent = results.join('\n');
+}
+calcFormule();
+
+function calcDeriv() {
+  const key=document.getElementById('der-func').value;
+  const x0=+document.getElementById('der-x').value;
+  const el=document.getElementById('der-res');
+  const fns={
+    sin3x:    {f:x=>Math.sin(3*x),    fp:x=>3*Math.cos(3*x),              s:'sin(3x)',     sp:"3·cos(3x)"},
+    cosx2:    {f:x=>Math.cos(x*x),    fp:x=>-2*x*Math.sin(x*x),           s:'cos(x²)',     sp:"-2x·sin(x²)"},
+    sin2x:    {f:x=>Math.sin(x)**2,   fp:x=>2*Math.sin(x)*Math.cos(x),    s:'sin²(x)',     sp:"2sin(x)cos(x)=sin(2x)"},
+    esinx:    {f:x=>Math.exp(Math.sin(x)), fp:x=>Math.cos(x)*Math.exp(Math.sin(x)), s:'e^(sin x)', sp:"cos(x)·e^(sin x)"},
+    xcosxv:   {f:x=>x*Math.cos(x),    fp:x=>Math.cos(x)-x*Math.sin(x),    s:'x·cos(x)',   sp:"cos(x)-x·sin(x)"},
+    sin2xcos3x:{f:x=>Math.sin(2*x)*Math.cos(3*x), fp:x=>2*Math.cos(2*x)*Math.cos(3*x)-3*Math.sin(2*x)*Math.sin(3*x), s:'sin(2x)·cos(3x)', sp:"2cos(2x)cos(3x)-3sin(2x)sin(3x)"},
+    lnsinx:   {f:x=>Math.log(Math.sin(x)), fp:x=>Math.cos(x)/Math.sin(x), s:'ln(sin x)',  sp:"cos(x)/sin(x)=cot(x)"},
+    sqrtcosx: {f:x=>Math.sqrt(Math.cos(x)), fp:x=>-Math.sin(x)/(2*Math.sqrt(Math.cos(x))), s:'√(cos x)', sp:"-sin(x)/(2√(cos x))"},
+  };
+  const d=fns[key];if(!d){el.textContent='Erreur';return;}
+  try{
+    const fx=d.f(x0),fpx=d.fp(x0);
+    el.innerHTML=`f(x) = ${d.s}\nf'(x) = ${d.sp}\nf(${R4(x0)}) = ${R4(fx)}\nf'(${R4(x0)}) = ${R4(fpx)}`;
+    if(window.MathJax)MathJax.typeset([el]);
+  }catch{el.textContent='Valeur hors domaine';}
+}
+calcDeriv();
+
+function calcEq() {
+  const type=document.getElementById('eq-sel').value;
+  const a=+document.getElementById('eq-aval').value;
+  const el=document.getElementById('eq-res');
+  if(Math.abs(a)>1){el.textContent=`Pas de solution (|a|=${Math.abs(a).toFixed(2)}>1)`;return;}
+  const sols2pi = [];
+  if(type==='cos'){
+    const t0=Math.acos(a);
+    sols2pi.push(t0);
+    if(Math.abs(t0)>1e-9)sols2pi.push(2*PI-t0);
+  }else{
+    const t0=Math.asin(a);
+    const t1=PI-t0;
+    const s0=((t0%(2*PI))+2*PI)%(2*PI);
+    const s1=((t1%(2*PI))+2*PI)%(2*PI);
+    sols2pi.push(s0);if(Math.abs(s0-s1)>1e-9)sols2pi.push(s1);
+  }
+  sols2pi.sort((a,b)=>a-b);
+  const solsStr=sols2pi.map(s=>`${R4(s)} ≈ ${R4(s*180/PI)}°`).join('\n');
+  el.textContent=`${type}(θ) = ${a}\nSolutions sur [0;2π]:\n${solsStr}\nForme générale : θ = ${type==='cos'?`±arccos(${a}) + 2kπ`:`arcsin(${a}) + 2kπ  ou  π-arcsin(${a}) + 2kπ`}`;
+}
+calcEq();
+
+// ── PYODIDE ──────────────────────────────────────────
+let pyodide=null,pyoLoad=false;
+const origC={};
+document.querySelectorAll('.py-code').forEach(ta=>{origC[ta.id]=ta.value;});
+async function loadPyo(){
+  if(pyodide)return true;if(pyoLoad)return false;pyoLoad=true;
+  const st=document.getElementById('py-status');st.textContent='⏳ Chargement Python…';
+  try{
+    const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
+    document.head.appendChild(s);await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});
+    pyodide=await window.loadPyodide();
+    st.textContent='✓ Python prêt';st.classList.add('ready');setTimeout(()=>st.classList.add('hidden'),3000);return true;
+  }catch(e){st.textContent='✗ Erreur Python';return false;}
+}
+async function runPy(id){
+  const code=document.getElementById(id+'-code').value;
+  const out=document.getElementById(id+'-out');
+  out.className='py-out active';out.textContent='⏳ Exécution…';out.style.color='#888';
+  const ok=await loadPyo();
+  if(!ok){out.className='py-out active error';out.textContent='Python non disponible.';return;}
+  try{let stdout='';pyodide.setStdout({batched:s=>stdout+=s+'\n'});await pyodide.runPythonAsync(code);out.className='py-out active';out.style.color='#a6e3a1';out.textContent=stdout||'(aucune sortie)';}
+  catch(e){out.className='py-out active error';out.textContent='⚠ '+e.message;}
+}
+function dlPy(id){const code=document.getElementById(id+'-code').value;const fname=document.getElementById(id+'-code').closest('.py-block').querySelector('.py-title').textContent.trim();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([code],{type:'text/plain'}));a.download=fname;a.click();}
+function rstPy(id){document.getElementById(id+'-code').value=origC[id+'-code'];const out=document.getElementById(id+'-out');out.className='py-out';out.textContent='';}
+
+// ── QCM ──────────────────────────────────────────────
+const allQ=[
+  {q:"\\(\\cos(\\pi/3)\\) vaut :",
+   opts:["\\(\\dfrac{\\sqrt{3}}{2}\\)","\\(\\dfrac{1}{2}\\)","\\(\\dfrac{\\sqrt{2}}{2}\\)","\\(0\\)"],ans:1,
+   exp:"\\(\\cos(\\pi/3)=1/2\\). Valeur à mémoriser : côté adjacent sur hypoténuse dans le triangle \\(30°\\text{-}60°\\text{-}90°\\)."},
+  {q:"\\(\\sin(3\\pi/4)\\) vaut :",
+   opts:["\\(-\\dfrac{\\sqrt{2}}{2}\\)","\\(\\dfrac{\\sqrt{2}}{2}\\)","\\(-\\dfrac{1}{2}\\)","\\(1\\)"],ans:1,
+   exp:"\\(\\sin(3\\pi/4)=\\sin(\\pi-\\pi/4)=\\sin(\\pi/4)=\\sqrt{2}/2\\)."},
+  {q:"La dérivée de \\(f(x)=\\sin(3x)\\) est :",
+   opts:["\\(\\cos(3x)\\)","\\(3\\cos(3x)\\)","\\(-3\\cos(3x)\\)","\\(\\sin(3)\\cos(x)\\)"],ans:1,
+   exp:"\\(u=3x\\), \\(u'=3\\) → \\((\\sin u)'=u'\\cos u=3\\cos(3x)\\)."},
+  {q:"\\(\\cos(-\\theta)=\\)",
+   opts:["\\(-\\cos\\theta\\)","\\(\\cos\\theta\\)","\\(\\sin\\theta\\)","\\(-\\sin\\theta\\)"],ans:1,
+   exp:"\\(\\cos\\) est <em>paire</em> : \\(\\cos(-\\theta)=\\cos\\theta\\) pour tout \\(\\theta\\)."},
+  {q:"Les solutions de \\(\\cos\\theta=1/2\\) sont :",
+   opts:["\\(\\theta=\\pi/3+2k\\pi\\)","\\(\\theta=\\pm\\pi/3+2k\\pi\\)","\\(\\theta=\\pi/6+2k\\pi\\)","\\(\\theta=\\pi/3+k\\pi\\)"],ans:1,
+   exp:"\\(\\cos\\theta=a\\Rightarrow\\theta=\\pm\\arccos(a)+2k\\pi\\). Ici \\(\\arccos(1/2)=\\pi/3\\)."},
+  {q:"\\(\\sin(2a)=\\)",
+   opts:["\\(2\\sin^2 a\\)","\\(\\sin^2 a-\\cos^2 a\\)","\\(2\\sin a\\cos a\\)","\\(\\cos(2a)\\)"],ans:2,
+   exp:"Formule de duplication : \\(\\sin(a+a)=\\sin a\\cos a+\\cos a\\sin a=2\\sin a\\cos a\\)."},
+  {q:"La dérivée de \\(f(x)=\\cos^2 x\\) est :",
+   opts:["\\(2\\cos x\\)","\\(-2\\cos x\\sin x\\)","\\(-\\sin(2x)\\)","B et C sont identiques"],ans:3,
+   exp:"\\(f'(x)=2\\cos x\\cdot(-\\sin x)=-2\\cos x\\sin x=-\\sin(2x)\\). Les réponses B et C sont bien identiques."},
+  {q:"\\(\\cos(2a)=\\)",
+   opts:["\\(2\\cos^2a\\)","\\(\\cos^2a-\\sin^2a\\)","\\(2\\cos^2a-1\\)","B et C sont identiques, et aussi \\(1-2\\sin^2a\\)"],ans:3,
+   exp:"\\(\\cos(2a)=\\cos^2a-\\sin^2a=2\\cos^2a-1=1-2\\sin^2a\\). Ces trois formes sont équivalentes."},
+  {q:"La période de \\(f(t)=\\cos(3t)\\) est :",
+   opts:["\\(3\\)","\\(2\\pi\\)","\\(\\pi/3\\)","\\(2\\pi/3\\)"],ans:3,
+   exp:"\\(T=2\\pi/\\omega=2\\pi/3\\). La pulsation est \\(\\omega=3\\), donc \\(T=2\\pi/3\\)."},
+  {q:"\\(\\sin(\\pi/2-\\theta)=\\)",
+   opts:["\\(\\sin\\theta\\)","\\(-\\sin\\theta\\)","\\(\\cos\\theta\\)","\\(-\\cos\\theta\\)"],ans:2,
+   exp:"Relation de complémentarité : \\(\\sin(\\pi/2-\\theta)=\\cos\\theta\\)."},
+  {q:"Pour \\(f(x)=3\\cos(2x+\\pi/4)\\), l'amplitude est :",
+   opts:["\\(2\\)","\\(\\pi/4\\)","\\(3\\)","\\(1/2\\)"],ans:2,
+   exp:"L'amplitude d'un signal \\(A\\cos(\\omega t+\\varphi)\\) est \\(|A|=3\\). La pulsation est \\(\\omega=2\\) et la phase \\(\\varphi=\\pi/4\\)."},
+  {q:"\\(\\cos(a+b)+\\cos(a-b)=\\)",
+   opts:["\\(2\\cos a\\cos b\\)","\\(2\\sin a\\sin b\\)","\\(2\\cos(a+b)\\)","\\(\\cos^2a-\\sin^2b\\)"],ans:0,
+   exp:"\\(\\cos(a+b)=\\cos a\\cos b-\\sin a\\sin b\\) et \\(\\cos(a-b)=\\cos a\\cos b+\\sin a\\sin b\\). La somme vaut \\(2\\cos a\\cos b\\)."},
+];
+
+let curQ=[],answered={},cSec=0,cPaused=false,cIntv=null;
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function pad2(n){return String(n).padStart(2,'0');}
+function newQCM(){answered={};curQ=shuf(allQ).slice(0,8);document.getElementById('qcm-r').classList.remove('active');document.getElementById('sc-v').textContent='0 / 0';resetC();startC();renderQ();}
+function renderQ(){
+  const c=document.getElementById('qcm-c');
+  c.innerHTML=curQ.map((q,qi)=>`
+    <div class="qcm-q" id="qq-${qi}">
+      <div class="qcm-question">${qi+1}. ${q.q}</div>
+      <div class="qcm-opts">
+        ${q.opts.map((o,oi)=>`
+          <div class="qcm-opt" id="opt-${qi}-${oi}" onclick="selO(${qi},${oi})">
+            <span class="opt-l">${String.fromCharCode(65+oi)}</span><span>${o}</span>
+          </div>`).join('')}
+      </div>
+      <div class="qcm-fb" id="fb-${qi}"></div>
+    </div>`).join('');
+  if(window.MathJax)MathJax.typeset([c]);
+}
+function selO(qi,oi){if(answered[qi]!==undefined)return;document.querySelectorAll(`#qq-${qi} .qcm-opt`).forEach(e=>e.classList.remove('selected'));document.getElementById(`opt-${qi}-${oi}`).classList.add('selected');answered[qi]=oi;}
+function submitQCM(){
+  let sc=0,tot=curQ.length;
+  curQ.forEach((q,qi)=>{
+    const ch=answered[qi];
+    const qEl=document.getElementById(`qq-${qi}`),fb=document.getElementById(`fb-${qi}`);
+    q.opts.forEach((_,oi)=>{const el=document.getElementById(`opt-${qi}-${oi}`);el.classList.add('disabled');if(oi===q.ans)el.classList.add('correct');if(ch===oi&&ch!==q.ans)el.classList.add('wrong');});
+    if(ch===q.ans){sc++;qEl.classList.add('correct');fb.innerHTML=`✓ Correct ! ${q.exp}`;}
+    else{qEl.classList.add('wrong');fb.innerHTML=`✗ ${ch===undefined?'Non répondu. ':''}Réponse : <strong>${q.opts[q.ans]}</strong>. ${q.exp}`;}
+    fb.classList.add('active');
+  });
+  document.getElementById('sc-v').textContent=`${sc} / ${tot}`;
+  const pct=Math.round(sc/tot*100);
+  const msg=pct>=87?'🌊 Excellent — maîtrise parfaite des fonctions trigo !':pct>=62?'⚡ Bien ! Quelques formules à consolider.':'📐 À retravailler — relire le cercle et les formules.';
+  document.getElementById('r-sc').textContent=`${sc} / ${tot} — ${pct} %`;
+  document.getElementById('r-msg').textContent=msg;
+  document.getElementById('qcm-r').classList.add('active');
+  if(window.MathJax)MathJax.typeset([document.getElementById('qcm-r'),document.getElementById('qcm-c')]);
+  stopC();
+}
+function startC(){stopC();cPaused=false;document.getElementById('btn-c').textContent='Pause';cIntv=setInterval(()=>{if(!cPaused){cSec++;document.getElementById('c-d').textContent=`${pad2(Math.floor(cSec/60))}:${pad2(cSec%60)}`;}},1000);}
+function stopC(){clearInterval(cIntv);cIntv=null;}
+function resetC(){stopC();cSec=0;cPaused=false;document.getElementById('c-d').textContent='00:00';document.getElementById('btn-c').textContent='Pause';}
+function toggleC(){cPaused=!cPaused;document.getElementById('btn-c').textContent=cPaused?'Reprendre':'Pause';}
+newQCM();
+
+// ── SCROLL REVEAL & NAV ──────────────────────────────
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.07});
+document.querySelectorAll('section').forEach(s=>io.observe(s));
+const navLinks=document.querySelectorAll('nav a');
+window.addEventListener('scroll',()=>{let cur='';document.querySelectorAll('main section').forEach(s=>{if(window.scrollY>=s.offsetTop-130)cur=s.id;});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));},{passive:true});
+</script>
+</body>
+</html>
